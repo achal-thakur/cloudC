@@ -1,0 +1,14 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedUsers
+metadata:
+  name: allow-only-approved-users
+spec:
+  parameters:
+    allowedUsers:
+      - "minikube"  #  Replace with the actual kubectl user name
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - ollama

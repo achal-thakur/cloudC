@@ -1,0 +1,29 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8sallowedusers
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sAllowedUsers
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sallowedusers
+
+        violation[{"msg": msg}] {
+          input.review.object.kind == "Pod"
+          input.review.object.metadata.namespace == "ollama"
+
+          user := input.review.user
+
+          # If the user is NOT in the allowed list
+          not allowed_user(user)
+
+          msg := sprintf("User %s is not allowed to create pods in the ollama namespace", [user])
+        }
+
+        allowed_user(user) {
+          user == input.parameters.allowedUsers[_]
+        }
